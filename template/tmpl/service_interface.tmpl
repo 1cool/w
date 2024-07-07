@@ -1,0 +1,22 @@
+package service
+
+import (
+    "{{ .RepositoryDir | ToSlash }}"
+)
+
+type service struct {
+   repository repository.IRepository
+}
+
+// IService statement service's abilities.
+// the function's name use Camel-Case define should be like this:
+// the filename prefix and the action suffix.
+type IService interface {
+    // {{ .InjectInterface }}
+}
+
+func New(repository repository.IRepository) IService {
+	return &service{
+		repository: repository,
+	}
+}

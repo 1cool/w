@@ -1,0 +1,23 @@
+package model
+
+type Config struct {
+	Http     Http     `yaml:"http" json:"http"`
+	Database Database `yaml:"database" json:"database"`
+}
+
+type Http struct {
+	Addr string `yaml:"addr" json:"addr"`
+}
+
+type Database struct {
+	Driver string `yaml:"driver" json:"driver"`
+	Mysql  Mysql  `yaml:"mysql" json:"mysql"`
+}
+
+type Mysql struct {
+	Host     string `yaml:"host" json:"host"`         // 服务器地址
+	Port     string `yaml:"port" json:"port"`         // 端口
+	Database string `yaml:"database" json:"database"` // 数据库名
+	Username string `yaml:"username" json:"username"` // 数据库用户名
+	Password string `yaml:"password" json:"password"` // 数据库密码
+}

@@ -1,0 +1,37 @@
+package config
+
+import (
+    "{{ .ModelDir | ToSlash }}"
+	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
+	"log"
+)
+
+func NewViperConfig() *model.Config {
+	v := viper.New()
+	v.SetConfigType("yaml")
+	v.AddConfigPath("./")
+
+	err := v.ReadInConfig()
+
+	if err != nil {
+		log.Fatalln(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+	var conf model.Config
+
+	v.WatchConfig()
+
+	v.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("config file changed:", e.Name)
+		if err = v.Unmarshal(&conf); err != nil {
+			fmt.Println(err)
+		}
+	})
+
+	if err = v.Unmarshal(&conf); err != nil {
+		fmt.Println(err)
+	}
+
+	return &conf
+}

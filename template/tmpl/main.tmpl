@@ -1,0 +1,32 @@
+package main
+
+import (
+    "{{ .ConfigDir | ToSlash }}"
+    "{{ .DatabaseDir | ToSlash }}"
+    "{{ .HandlerDir | ToSlash }}"
+    "{{ .RepositoryDir | ToSlash }}"
+    "{{ .ServiceDir | ToSlash }}"
+	"log"
+	"net/http"
+)
+
+func main() {
+	conf := config.NewViperConfig()
+    db, err := database.NewDatabase(conf.Database)
+
+    if err != nil {
+        log.Fatalln(err)
+    }
+
+    repo := repository.New(db)
+    srv := service.New(repo)
+
+    h := httptransport.GinHandler(srv)
+    addr := conf.Http.Addr
+    if "" == conf.Http.Addr {
+        addr = ":9025"
+    }
+
+	log.Println("http.ListenAndServe ON: ", addr)
+	log.Fatalln(http.ListenAndServe(addr, h))
+}

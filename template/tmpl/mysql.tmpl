@@ -1,0 +1,41 @@
+package database
+
+import (
+    "{{ .InternalDir | ToSlash }}/ent"
+    "{{ .ModelDir | ToSlash }}"
+	"context"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/schema"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"time"
+)
+
+func NewMySQLClient(conf model.Mysql) (client *ent.Client, err error) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.Database)
+
+	drv, err := sql.Open(dialect.MySQL, dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the underlying sql.DB object of the driver.
+	db := drv.DB()
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+	db.SetConnMaxLifetime(time.Hour)
+	client = ent.NewClient(ent.Driver(drv))
+
+	// migrate
+	err = client.Schema.Create(
+		context.Background(),
+		schema.WithForeignKeys(false),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

@@ -1,0 +1,15 @@
+package database
+
+import (
+	"{{ .InternalDir | ToSlash}}/ent"
+	"{{ .ModelDir | ToSlash}}"
+)
+
+func NewDatabase(conf model.Database) (client *ent.Client, err error) {
+	switch conf.Driver {
+	case "mysql":
+		return NewMySQLClient(conf.Mysql)
+	default:
+		return NewMySQLClient(conf.Mysql)
+	}
+}

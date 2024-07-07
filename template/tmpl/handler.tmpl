@@ -1,0 +1,21 @@
+package httptransport
+
+import (
+	"{{ .ServiceDir | ToSlash }}"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+type handler struct {
+    srv service.IService
+}
+
+func GinHandler(srv service.IService) http.Handler {
+	h := &handler{srv: srv}
+	r := gin.New()
+	v1 := r.Group("/api/v1")
+	v1.GET("/example", h.example)
+
+    // TODO implement your business.
+	return r
+}
