@@ -9,7 +9,6 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -27,13 +26,14 @@ var initCmd = &cobra.Command{
 	Long: `init one golang project. For example:
 
 w init project`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			log.Fatalln("project_name needs to be provided")
+			return errors.New("project_name needs to be provided")
 		}
 
 		projectName := args[0]
 		gen = &Generator{
+			SnakeName: strcase.ToSnake(projectName),
 			tmpl: template.Must(
 				template.New("").
 					Funcs(template.FuncMap{
@@ -42,99 +42,94 @@ w init project`,
 					ParseFS(template2.TemplateDir, "tmpl/*.tmpl"),
 			),
 		}
-		gen.SnakeName = strcase.ToSnake(projectName)
+
 		if fileIsExisted(gen.SnakeName) {
-			log.Fatalf("the %s is existed not need init.\n", gen.SnakeName)
+			return errors.New(fmt.Sprintf("the %s is existed not need init.\n", gen.SnakeName))
 		}
 		_, err := goModInit(gen.SnakeName)
 		if err != nil {
-			log.Fatalln("go mod init error:", err)
+			return errors.Wrapf(err, "go mod init error")
 		}
 
 		gen.WorkDir = filepath.Join("", gen.SnakeName)
-		internal := filepath.Join(gen.WorkDir, "internal")
-		if !fileIsExisted(internal) {
-			err := os.MkdirAll(internal, os.ModePerm)
+		// variable
+		gen.CamelName = "Example"
+		gen.setVariable()
+
+		if !fileIsExisted(gen.InternalDir) {
+			err := os.MkdirAll(gen.InternalDir, os.ModePerm)
 			if err != nil {
-				log.Fatalln("internal dir init error:", err)
+				return errors.Wrapf(err, "internal dir init error")
 			}
 		}
 
-		gen.InternalDir = internal
-		gen.ServiceDir = filepath.Join(gen.InternalDir, "service")
-		gen.RepositoryDir = filepath.Join(gen.InternalDir, "repository")
-		gen.ModelDir = filepath.Join(gen.InternalDir, "model")
-		gen.ConfigDir = filepath.Join(gen.InternalDir, "config")
-		gen.DatabaseDir = filepath.Join(gen.InternalDir, "database")
-		gen.HandlerDir = filepath.Join(gen.InternalDir, "httptransport")
 		gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
 		gen.InjectInterface = "{{ .InjectInterface }}"
 
-		gen.CamelName = "User"
-
 		_, err = gen.NewEntSchema()
 		if err != nil {
-			log.Fatalln("ent new error:", err)
+			return errors.Wrapf(err, "ent new error")
 		}
 
 		_, err = gen.EntGenerate()
 		if err != nil {
-			log.Fatalln("go generate error:", err)
+			return errors.Wrapf(err, "go generate error")
 		}
 
 		err = gen.InitGenerate("repository.go", gen.RepositoryDir, "repository_interface.tmpl")
 		if err != nil {
-			log.Fatalln("repository init error:", err)
+			return errors.Wrapf(err, "repository init error")
 		}
 
 		err = gen.InitGenerate("service.go", gen.ServiceDir, "service_interface.tmpl")
 		if err != nil {
-			log.Fatalln("service init error:", err)
+			return errors.Wrapf(err, "service init error")
 		}
 
 		err = gen.InitGenerate("gintransport.go", gen.HandlerDir, "handler.tmpl")
 		if err != nil {
-			log.Fatalln("handler init error:", err)
+			return errors.Wrapf(err, "handler init error")
 		}
 
 		err = gen.InitGenerate("example.go", gen.HandlerDir, "handler_example.tmpl")
 		if err != nil {
-			log.Fatalln("handler example init error:", err)
+			return errors.Wrapf(err, "handler example init error")
 		}
 
 		err = gen.InitGenerate("config.go", gen.ModelDir, "config.tmpl")
 		if err != nil {
-			log.Fatalln("model init error:", err)
+			return errors.Wrapf(err, "config init error")
 		}
 
 		err = gen.InitGenerate("viper.go", gen.ConfigDir, "viper.tmpl")
 		if err != nil {
-			log.Fatalln("config init error:", err)
+			return errors.Wrapf(err, "viper init error")
 		}
 
 		err = gen.InitGenerate("database.go", gen.DatabaseDir, "database.tmpl")
 		if err != nil {
-			log.Fatalln("database init error:", err)
+			return errors.Wrapf(err, "database init error")
 		}
 
 		err = gen.InitGenerate("mysql.go", gen.DatabaseDir, "mysql.tmpl")
 		if err != nil {
-			log.Fatalln("mysql init error:", err)
+			return errors.Wrapf(err, "mysql init error")
 		}
 
 		err = gen.InitGenerate("main.go", gen.WorkDir, "main.tmpl")
 		if err != nil {
-			log.Fatalln("main init error:", err)
+			return errors.Wrapf(err, "main init error")
 		}
 
 		err = gen.InitGenerate("config.yaml", gen.WorkDir, "configyaml.tmpl")
 		if err != nil {
-			log.Fatalln("main init error:", err)
+			return errors.Wrapf(err, "config.yaml init error")
 		}
 
 		fmt.Println("init successful")
 		fmt.Println("please cd your project dirname,then edit your config file `config.yaml`")
 		fmt.Println("finally please run `go mod tidy && go run main.go`")
+		return nil
 	},
 }
 

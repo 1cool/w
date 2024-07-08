@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func fileIsExisted(directory string) bool {
@@ -23,6 +25,13 @@ func entNew(schema string) (string, error) {
 		"new",
 		schema,
 	}...)
+}
+
+func firstLetter(s string) string {
+	if len(s) == 0 {
+		return ""
+	}
+	return strings.ToLower(string(s[0]))
 }
 
 func WriteToFile(newFile string, fileData []byte) error {
@@ -63,4 +72,31 @@ func runCmdCommand(command string, dir string, args ...string) (string, error) {
 		}
 	}
 	return o.String(), nil
+}
+
+func ReadModuleNameFromGoModFile() (string, error) {
+	if !fileIsExisted("go.mod") {
+		return "", errors.New("请在go.mod同级目录下执行命令")
+	}
+
+	file, err := os.Open("go.mod")
+	if err != nil {
+		return "", errors.Wrapf(err, "open go.mod file error")
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "module ") {
+			modulePath := strings.TrimSpace(strings.TrimPrefix(line, "module "))
+			fmt.Println("Module path:", modulePath)
+			return modulePath, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", errors.Wrapf(err, "Error reading go.mod file error")
+	}
+
+	return "", errors.New("go.mod file not hava module")
 }
