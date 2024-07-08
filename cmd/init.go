@@ -65,6 +65,7 @@ w init project`,
 
 		gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
 		gen.InjectInterface = "{{ .InjectInterface }}"
+		gen.InjectInterfaceFuncHere = "{{ .InjectInterfaceFuncHere }}"
 
 		_, err = gen.NewEntSchema()
 		if err != nil {
