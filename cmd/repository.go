@@ -10,7 +10,9 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -86,16 +88,38 @@ func (gen *Generator) NewRepository() error {
 	gen.TemplateFunc = bytes.Buffer{}
 	gen.TemplateInterface = bytes.Buffer{}
 	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
+	gen.InjectInterfaceFuncHere = "{{ .InjectInterfaceFuncHere }}"
 	gen.InjectInterface = "{{ .InjectInterface }}"
 	gen.InjectHereImpl = "{{ .InjectHereImpl }}"
 
 	fmt.Println(fmt.Sprintf("%+v", gen))
-	//err := gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "repository_interface.tmpl", gen)
-	//if err != nil {
-	//	return err
-	//}
+	err := gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "repository_interface", gen)
+	if err != nil {
+		return err
+	}
 
-	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "repository_entity", gen)
+	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
+	if err != nil {
+		return err
+	}
+	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
+	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+	if err != nil {
+		return err
+	}
+
+	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "repository_interface_func", gen)
+	if err != nil {
+		return err
+	}
+
+	newInterfaceFuncData := strings.Replace(string(interfaceData), "// {{ .InjectInterfaceFuncHere }}", gen.TemplateFunc.String(), 1)
+	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceFuncData))
+	if err != nil {
+		return err
+	}
+
+	err = gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "repository_entity", gen)
 	if err != nil {
 		return err
 	}

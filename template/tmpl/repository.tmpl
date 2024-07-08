@@ -24,7 +24,7 @@ type {{ .CamelName }}Repository interface {
     // {{ .InjectInterface }}
 }
 
-func New{{ .CamelName }}Repository (client *ent.Client) {{ .CamelName }}Repository {
+func new{{ .CamelName }}Repository (client *ent.Client) {{ .CamelName }}Repository {
     return &{{ .LowerCamelName }}Repository{
         client: client,
     }
@@ -81,10 +81,13 @@ func (repo *{{ .LowerCamelName }}Repository) Delete{{ .CamelName }} (ctx context
 
 {{ define "repository_interface" }}
     New{{ .CamelName }}Repository() {{ .CamelName }}Repository
+    // {{ .InjectInterface }}
 {{end}}
 
-{{ define "repository_interface_impl" }}
-    func (repo *repository) New{{ .CamelName }}Repository() {{ .CamelName }}Repository {
-        return new{{ .CamelName }}Repository(repo.client)
-    }
+{{ define "repository_interface_func" }}
+func (repo *repository) New{{ .CamelName }}Repository() {{ .CamelName }}Repository {
+    return new{{ .CamelName }}Repository(repo.client)
+}
+
+// {{ .InjectInterfaceFuncHere }}
 {{end}}
