@@ -10,7 +10,9 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -31,18 +33,25 @@ gapi new service user.`,
 			tmpl: template.Must(
 				template.New("new").
 					Funcs(template.FuncMap{
-						"ToSlash": filepath.ToSlash,
+						"ToSlash":     filepath.ToSlash,
+						"FirstLetter": firstLetter,
 					}).
 					ParseFS(template2.TemplateDir, "tmpl/*.tmpl")),
 		}
+		moduleName, err := ReadModuleNameFromGoModFile()
+		if err != nil {
+			return err
+		}
+
+		gen.Module = moduleName
+		gen.setVariable()
 		gen.CamelName = strcase.ToCamel(name)
 		gen.LowerCamelName = strcase.ToLowerCamel(name)
 		gen.SnakeName = strcase.ToSnake(name)
 		gen.FuncName = strcase.ToCamel(args[1])
-		gen.ServiceDir = filepath.Join(gen.WorkDir, "internal/service")
 		gen.Type = TypeService
 
-		err := gen.NewService()
+		err = gen.NewService()
 
 		if err != nil {
 			return err
@@ -78,12 +87,32 @@ func (gen *Generator) NewService() error {
 	gen.InjectInterface = "{{ .InjectInterface }}"
 	gen.InjectHereImpl = "{{ .InjectHereImpl }}"
 
-	err := gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "interface_statement.tmpl", gen)
+	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "service_entity", gen)
 	if err != nil {
 		return err
 	}
 
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_impl.tmpl", gen)
+	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
+	if err != nil {
+		return err
+	}
+
+	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
+	if err != nil {
+		return err
+	}
+	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
+	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+	err = WriteToFile(gen.TargetInterfaceFile, gen.TemplateInterface.Bytes())
+	if err != nil {
+		return err
+	}
+
+	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_func", gen)
+	if err != nil {
+		return err
+	}
+	err = WriteToFile(gen.TargetInterfaceFile, gen.TemplateFunc.Bytes())
 	if err != nil {
 		return err
 	}
