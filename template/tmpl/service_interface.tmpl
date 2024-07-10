@@ -5,7 +5,7 @@ import (
 )
 
 type service struct {
-   repository repository.IRepository
+   repo repository.IRepository
 }
 
 // IService statement service's abilities.
@@ -17,7 +17,7 @@ type IService interface {
 
 func New(repository repository.IRepository) IService {
 	return &service{
-		repository: repository,
+		repo: repository,
 	}
 }
 
