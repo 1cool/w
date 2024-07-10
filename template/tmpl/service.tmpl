@@ -30,23 +30,23 @@ func new{{ .CamelName }}Service (repo repository.{{ .CamelName }}Repository) {{ 
 }
 
 func (srv *{{ .LowerCamelName }}Service) Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} ent.{{ .CamelName }}) (*ent.{{ .CamelName }}, error) {
-     return  srv.repo.Add{{ .CamelName }}(any)
+     return  srv.repo.Add{{ .CamelName }}(ctx)
  }
 
 func (srv *{{ .LowerCamelName }}Service) Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} ent.{{ .CamelName }}) (int, error) {
-     return srv.repo.Update.{{ .CamelName }}()
+     return srv.repo.Update{{ .CamelName }}(ctx)
 }
 
 func (srv *{{ .LowerCamelName }}Service) List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .CamelName }}, error) {
-     return srv.repo.List.{{ .CamelName }}()
+     return srv.repo.List{{ .CamelName }}(ctx)
 }
 
 func (srv *{{ .LowerCamelName }}Service) Show{{ .CamelName }} (ctx context.Context, id int) (*ent.{{ .CamelName }}, error) {
-     return srv.repo.Show.{{ .CamelName }}()
+     return srv.repo.Show{{ .CamelName }}(ctx)
 }
 
 func (srv *{{ .LowerCamelName }}Service) Delete{{ .CamelName }} (ctx context.Context, id int) (int, error) {
-       return srv.repo.Delete.{{ .CamelName }}()
+       return srv.repo.Delete{{ .CamelName }}(ctx)
 }
 
  // {{ .InjectHereImpl }}
@@ -59,7 +59,7 @@ func (srv *{{ .LowerCamelName }}Service) Delete{{ .CamelName }} (ctx context.Con
 
 {{ define "service_interface_func" }}
 func (srv *service) New{{ .CamelName }}Service() {{ .CamelName }}Service {
-    return new{{ .CamelName }}Service(repo.client)
+    return new{{ .CamelName }}Service(srv.repo.New{{ .CamelName }}Repository)
 }
 
 // {{ .InjectInterfaceFuncHere }}

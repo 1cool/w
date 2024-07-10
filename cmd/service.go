@@ -91,7 +91,6 @@ func (gen *Generator) NewService() error {
 	if err != nil {
 		return err
 	}
-
 	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
 	if err != nil {
 		return err
@@ -101,21 +100,19 @@ func (gen *Generator) NewService() error {
 	if err != nil {
 		return err
 	}
-	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
-	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
-	err = WriteToFile(gen.TargetInterfaceFile, gen.TemplateInterface.Bytes())
+	err = gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "service_interface", gen)
 	if err != nil {
 		return err
 	}
-
+	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
+	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+	if err != nil {
+		return err
+	}
 	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_func", gen)
 	if err != nil {
 		return err
 	}
-	err = WriteToFile(gen.TargetInterfaceFile, gen.TemplateFunc.Bytes())
-	if err != nil {
-		return err
-	}
-
-	return gen.NewGenerate()
+	newInterfaceFuncData := strings.Replace(newInterfaceData, "// {{ .InjectInterfaceFuncHere }}", gen.TemplateFunc.String(), 1)
+	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceFuncData))
 }
