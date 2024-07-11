@@ -3,6 +3,7 @@ package service
 
 import (
     "{{.Module }}/{{ .InternalDir }}/ent"
+    "{{.Module }}/{{ .InternalDir }}/repository"
     "context"
 )
 
@@ -49,7 +50,7 @@ func (srv *{{ .LowerCamelName }}Service) Delete{{ .CamelName }} (ctx context.Con
        return srv.repo.Delete{{ .CamelName }}(ctx)
 }
 
- // {{ .InjectHereImpl }}
+ // {{ .InjectInterfaceImpl }}
 {{ end }}
 
 {{ define "service_interface" }}
@@ -57,10 +58,37 @@ func (srv *{{ .LowerCamelName }}Service) Delete{{ .CamelName }} (ctx context.Con
     // {{ .InjectInterface }}
 {{end}}
 
-{{ define "service_interface_func" }}
+{{ define "service_interface_impl" }}
 func (srv *service) New{{ .CamelName }}Service() {{ .CamelName }}Service {
-    return new{{ .CamelName }}Service(srv.repo.New{{ .CamelName }}Repository)
+    return new{{ .CamelName }}Service(srv.repo.New{{ .CamelName }}Repository())
 }
 
-// {{ .InjectInterfaceFuncHere }}
+// {{ .InjectInterfaceImpl }}
+{{end}}
+
+{{ define "service" }}
+package service
+
+import (
+    "{{ .InternalDir | ToSlash }}/repository"
+)
+
+type service struct {
+   repo repository.IRepository
+}
+
+// IService statement service's abilities.
+// the function's name use Camel-Case define should be like this:
+// the filename prefix and the action suffix.
+type IService interface {
+    // {{ .InjectInterface }}
+}
+
+func New(repository repository.IRepository) IService {
+	return &service{
+		repo: repository,
+	}
+}
+
+// {{ .InjectInterfaceImpl }}
 {{end}}

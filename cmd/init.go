@@ -37,7 +37,8 @@ w init project`,
 			tmpl: template.Must(
 				template.New("").
 					Funcs(template.FuncMap{
-						"ToSlash": filepath.ToSlash,
+						"ToSlash":     filepath.ToSlash,
+						"FirstLetter": firstLetter,
 					}).
 					ParseFS(template2.TemplateDir, "tmpl/*.tmpl"),
 			),
@@ -65,7 +66,6 @@ w init project`,
 
 		gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
 		gen.InjectInterface = "{{ .InjectInterface }}"
-		gen.InjectInterfaceFuncHere = "{{ .InjectInterfaceFuncHere }}"
 
 		_, err = gen.NewEntSchema()
 		if err != nil {
@@ -77,12 +77,12 @@ w init project`,
 			return errors.Wrapf(err, "go generate error")
 		}
 
-		err = gen.InitGenerate("repository.go", gen.RepositoryDir, "repository_interface.tmpl")
+		err = gen.InitGenerate("repository.go", gen.RepositoryDir, "repository")
 		if err != nil {
 			return errors.Wrapf(err, "repository init error")
 		}
 
-		err = gen.InitGenerate("service.go", gen.ServiceDir, "service_interface.tmpl")
+		err = gen.InitGenerate("service.go", gen.ServiceDir, "service")
 		if err != nil {
 			return errors.Wrapf(err, "service init error")
 		}

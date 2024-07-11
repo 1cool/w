@@ -76,7 +76,7 @@ func (repo *{{ .LowerCamelName }}Repository) Delete{{ .CamelName }} (ctx context
          Exec(ctx)
 }
 
- // {{ .InjectHereImpl }}
+ // {{ .InjectInterfaceImpl }}
 {{ end }}
 
 {{ define "repository_interface" }}
@@ -84,10 +84,39 @@ func (repo *{{ .LowerCamelName }}Repository) Delete{{ .CamelName }} (ctx context
     // {{ .InjectInterface }}
 {{end}}
 
-{{ define "repository_interface_func" }}
+{{ define "repository_interface_impl" }}
 func (repo *repository) New{{ .CamelName }}Repository() {{ .CamelName }}Repository {
     return new{{ .CamelName }}Repository(repo.client)
 }
 
-// {{ .InjectInterfaceFuncHere }}
+// {{ .InjectInterfaceImpl }}
 {{end}}
+
+{{ define "repository" }}
+package repository
+
+import (
+    "{{ .InternalDir | ToSlash }}/ent"
+)
+
+type repository struct {
+    client *ent.Client
+}
+
+// IRepository is repository's functions used to service
+// It statement the repository's abilities.
+// the function name use Camel-Case define should be like this.
+// the action is prefix the domain is middle and the other is suffix.
+type IRepository interface {
+    // {{ .InjectInterface }}
+}
+
+func New(client *ent.Client) IRepository {
+    return &repository{
+        client: client,
+    }
+}
+
+// {{ .InjectInterfaceImpl }}
+
+{{ end }}

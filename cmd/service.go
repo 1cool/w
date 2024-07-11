@@ -83,9 +83,7 @@ func (gen *Generator) NewService() error {
 	gen.TemplateFunc = bytes.Buffer{}
 	gen.TemplateInterface = bytes.Buffer{}
 	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
-	gen.InjectInterfaceFuncHere = "{{ .InjectInterfaceFuncHere }}"
 	gen.InjectInterface = "{{ .InjectInterface }}"
-	gen.InjectHereImpl = "{{ .InjectHereImpl }}"
 
 	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "service_entity", gen)
 	if err != nil {
@@ -105,14 +103,13 @@ func (gen *Generator) NewService() error {
 		return err
 	}
 	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
-	err = WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
 	if err != nil {
 		return err
 	}
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_func", gen)
+	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_impl", gen)
 	if err != nil {
 		return err
 	}
-	newInterfaceFuncData := strings.Replace(newInterfaceData, "// {{ .InjectInterfaceFuncHere }}", gen.TemplateFunc.String(), 1)
-	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceFuncData))
+	newInterfaceData = strings.Replace(newInterfaceData, "// {{ .InjectInterfaceImpl }}", gen.TemplateFunc.String(), 1)
+	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
 }

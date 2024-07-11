@@ -10,31 +10,30 @@ import (
 )
 
 type Generator struct {
-	WorkDir                 string // exec命令执行工作目录
-	Module                  string // go.mod module
-	InternalDir             string
-	ServiceDir              string
-	RepositoryDir           string
-	HandlerDir              string
-	ModelDir                string
-	ConfigDir               string
-	DatabaseDir             string
-	Type                    string
-	CamelName               string
-	LowerCamelName          string
-	SnakeName               string
-	FuncName                string
-	InjectHereImpl          string //
-	InjectInterface         string //
-	InjectInterfaceFuncHere string //
-	InjectInterfaceImpl     string //
-	InjectHandlerFunc       string
-	TargetFuncFile          string
-	TargetInterfaceFile     string
-	InjectInterfaceEntity   bytes.Buffer
-	TemplateFunc            bytes.Buffer
-	TemplateInterface       bytes.Buffer
-	tmpl                    *template.Template
+	WorkDir               string // exec命令执行工作目录
+	Module                string // go.mod module
+	InternalDir           string
+	ServiceDir            string
+	RepositoryDir         string
+	HandlerDir            string
+	ModelDir              string
+	ConfigDir             string
+	DatabaseDir           string
+	Type                  string
+	CamelName             string
+	LowerCamelName        string
+	SnakeName             string
+	FuncName              string
+	InjectInterface       string //
+	InjectInterfaceImpl   string //
+	InjectHandlerFunc     string
+	TargetFuncFile        string
+	TargetInterfaceFile   string
+	InjectInterfaceEntity bytes.Buffer
+	TemplateFunc          bytes.Buffer
+	TemplateInterface     bytes.Buffer
+	TemplateInterfaceImpl bytes.Buffer
+	tmpl                  *template.Template
 }
 
 var gen *Generator
