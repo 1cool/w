@@ -3,6 +3,7 @@ package repository
 
 import (
     "{{.Module }}/{{ .InternalDir }}/ent"
+    "{{.Module }}/{{ .InternalDir }}/model"
     "context"
 )
 
@@ -15,10 +16,10 @@ type {{ .LowerCamelName }}Repository struct {
 // the function name use Camel-Case define should be like this.
 // the action is prefix the domain is middle and the other is suffix.
 type {{ .CamelName }}Repository interface {
-    Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} ent.{{ .CamelName }}) (*ent.{{ .CamelName }}, error)
-    Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName }} ent.{{ .CamelName }}) (int, error)
-    List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .CamelName }}, error)
-    Show{{ .CamelName }} (ctx context.Context, id int) (*ent.{{ .CamelName }}, error)
+    Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} model.{{ .CamelName }}) (*model.{{ .CamelName }}, error)
+    Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName }} model.{{ .CamelName }}) (int, error)
+    List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .CamelName }}, error)
+    Show{{ .CamelName }} (ctx context.Context, id int) (*model.{{ .CamelName }}, error)
     Delete{{ .CamelName }} (ctx context.Context, id int) (int, error)
 
     // {{ .InjectInterface }}
@@ -30,43 +31,56 @@ func new{{ .CamelName }}Repository (client *ent.Client) {{ .CamelName }}Reposito
     }
 }
 
-func (repo *{{ .LowerCamelName }}Repository) Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} ent.{{ .CamelName }}) (*ent.{{ .CamelName }}, error) {
-     return  repo.client.{{ .CamelName }}.Create().
+func (repo *{{ .LowerCamelName }}Repository) Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} model.{{ .CamelName }}) (*model.{{ .CamelName }}, error) {
+     _, err := repo.client.{{ .CamelName }}.Create().
              // TODO implement your business.
              Save(ctx)
+     if err != nil {
+        return nil, err
+     }
+     return &model.User{
+        // TODO set you want filed from Save return value.
+     }, err
  }
 
-func (repo *{{ .LowerCamelName }}Repository) Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} ent.{{ .CamelName }}) (int, error) {
+func (repo *{{ .LowerCamelName }}Repository) Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} model.{{ .CamelName }}) (int, error) {
      return repo.client.{{ .CamelName }}.Update().
              Where({{ .SnakeName }}.ID(id)).
              // TODO implement your business.
              Save(ctx)
 }
 
-func (repo *{{ .LowerCamelName }}Repository) List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .CamelName }}, error) {
+func (repo *{{ .LowerCamelName }}Repository) List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .CamelName }}, error) {
      total, err := repo.client.{{ .CamelName }}.Query().Count(ctx)
      if err != nil {
          return 0, nil, err
      }
 
-     list, err := repo.client.{{ .CamelName }}.Query().
-         // TODO implement your business.
-         Offset(offset).
-         Limit(limit).
-         All(ctx)
+     var list []*model.{{ .CamelName }}
+     err = repo.client.User.Query().
+        // TODO implement your business.
+        Offset(offset).
+        Limit(limit).
+        Select().
+        Scan(ctx, &list)
 
      if err != nil {
-         return 0, nil, err
+        return 0, nil, err
      }
-
-     return  total, list, nil
+     return total, list, nil
 }
 
-func (repo *{{ .LowerCamelName }}Repository) Show{{ .CamelName }} (ctx context.Context, id int) (*ent.{{ .CamelName }}, error) {
-     return repo.client.{{ .CamelName }}.Query().
+func (repo *{{ .LowerCamelName }}Repository) Show{{ .CamelName }} (ctx context.Context, id int) (*model.{{ .CamelName }}, error) {
+     var {{ .LowerCamelName | FirstLetter }} *model.{{ .CamelName }}
+     err := repo.client.{{ .CamelName }}.Query().
          Where({{ .SnakeName }}.ID(id)).
+         Select().
          // TODO implement your business.
-         First(ctx)
+         Scan(ctx, &{{ .LowerCamelName | FirstLetter }})
+     if err != nil {
+        return nil, err
+     }
+     return {{ .LowerCamelName | FirstLetter }}, nil
 }
 
 func (repo *{{ .LowerCamelName }}Repository) Delete{{ .CamelName }} (ctx context.Context, id int) (int, error) {
