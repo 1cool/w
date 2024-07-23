@@ -4,15 +4,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	template2 "github.com/1cool/w/template"
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 )
 
@@ -45,20 +41,16 @@ new repository user addUser`,
 		}
 
 		gen.Module = moduleName
-		gen.CamelName = strcase.ToCamel(name)
-		gen.LowerCamelName = strcase.ToLowerCamel(name)
 		gen.SnakeName = strcase.ToSnake(name)
-		gen.FuncName = strcase.ToCamel(args[1])
 
-		gen.setVariable()
-		gen.Type = TypeRepository
+		gen.setDir()
 
-		err = gen.NewRepository()
+		//err = gen.NewRepository()
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("new repository successful", gen.SnakeName, gen.FuncName)
+		//fmt.Println("new repository successful", gen.SnakeName, gen.FuncName)
 		return nil
 	},
 }
@@ -81,41 +73,48 @@ func init() {
 // 1. generate CamelNameRepository file
 // 2. generate NewCamelNameRepository interface in Repository Interface file
 // 3. generate NewCamelNameRepositoryImpl function in Repository Interface file
-func (gen *Generator) NewRepository() error {
-	gen.TargetFuncFile = filepath.Join(gen.RepositoryDir, gen.SnakeName+".go")
-	gen.TargetInterfaceFile = filepath.Join(gen.RepositoryDir, "repository.go")
-	gen.InjectInterfaceEntity = bytes.Buffer{}
-	gen.TemplateFunc = bytes.Buffer{}
-	gen.TemplateInterface = bytes.Buffer{}
-	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
-	gen.InjectInterface = "{{ .InjectInterface }}"
+//func (gen *Generator) NewRepository() error {
+//	gen.TargetFuncFile = filepath.Join(gen.RepositoryDir, gen.SnakeName+".go")
+//	gen.TargetInterfaceFile = filepath.Join(gen.RepositoryDir, "repository.go")
+//	gen.InjectInterfaceEntity = bytes.Buffer{}
+//	gen.TemplateFunc = bytes.Buffer{}
+//	gen.TemplateInterface = bytes.Buffer{}
+//	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
+//	gen.InjectInterface = "{{ .InjectInterface }}"
+//
+//	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "repository_entity", gen)
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "repository_interface", gen)
+//	if err != nil {
+//		return err
+//	}
+//
+//	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
+//	if err != nil {
+//		return err
+//	}
+//	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
+//
+//	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "repository_interface_impl", gen)
+//	if err != nil {
+//		return err
+//	}
+//
+//	newInterfaceData = strings.Replace(newInterfaceData, "// {{ .InjectInterfaceImpl }}", gen.TemplateFunc.String(), 1)
+//	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+//}
 
-	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "repository_entity", gen)
-	if err != nil {
-		return err
-	}
-
-	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
-	if err != nil {
-		return err
-	}
-
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "repository_interface", gen)
-	if err != nil {
-		return err
-	}
-
-	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
-	if err != nil {
-		return err
-	}
-	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
-
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "repository_interface_impl", gen)
-	if err != nil {
-		return err
-	}
-
-	newInterfaceData = strings.Replace(newInterfaceData, "// {{ .InjectInterfaceImpl }}", gen.TemplateFunc.String(), 1)
-	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+func (gen *Generator) Repository(targetFile, tmpl string, actionType ActionType) error {
+	gen.TargetFile = filepath.Join(gen.RepositoryDir, targetFile)
+	gen.TmplName = tmpl
+	gen.Action = actionType
+	return gen.write()
 }

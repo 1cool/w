@@ -2,37 +2,37 @@
 package repository
 
 import (
-    "{{.Module }}/{{ .InternalDir }}/ent"
-    "{{.Module }}/{{ .InternalDir }}/model"
+    "{{ .InternalDir }}/ent"
+    "{{ .InternalDir }}/model"
     "context"
 )
 
-type {{ .LowerCamelName }}Repository struct {
+type {{ .SnakeName | LowerCamel }}Repository struct {
     client *ent.Client
 }
 
-// {{ .CamelName }}Repository is repository's functions used to service
+// {{ .SnakeName | CaseName }}Repository is repository's functions used to service
 // It statement the repository's abilities.
 // the function name use Camel-Case define should be like this.
 // the action is prefix the domain is middle and the other is suffix.
-type {{ .CamelName }}Repository interface {
-    Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} model.{{ .CamelName }}) (*model.{{ .CamelName }}, error)
-    Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName }} model.{{ .CamelName }}) (int, error)
-    List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .CamelName }}, error)
-    Show{{ .CamelName }} (ctx context.Context, id int) (*model.{{ .CamelName }}, error)
-    Delete{{ .CamelName }} (ctx context.Context, id int) (int, error)
+type  {{ .SnakeName | CaseName }}Repository interface {
+    Add {{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (*model.{{ .SnakeName | CaseName }}, error)
+    Update {{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (int, error)
+    List {{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .SnakeName | CaseName }}, error)
+    Show {{ .SnakeName | CaseName }} (ctx context.Context, id int) (*model.{{ .SnakeName | CaseName }}, error)
+    Delete {{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error)
 
-    // {{ .InjectInterface }}
+    //  InjectInterface 
 }
 
-func new{{ .CamelName }}Repository (client *ent.Client) {{ .CamelName }}Repository {
-    return &{{ .LowerCamelName }}Repository{
+func new{{ .SnakeName | CaseName }}Repository (client *ent.Client) {{ .SnakeName | CaseName }}Repository {
+    return &{{ .SnakeName | LowerCamel }}Repository{
         client: client,
     }
 }
 
-func (repo *{{ .LowerCamelName }}Repository) Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} model.{{ .CamelName }}) (*model.{{ .CamelName }}, error) {
-     _, err := repo.client.{{ .CamelName }}.Create().
+func (repo *{{ .SnakeName | LowerCamel }}Repository) Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (*model.{{ .SnakeName | CaseName }}, error) {
+     _, err := repo.client.{{ .SnakeName | CaseName }}.Create().
              // TODO implement your business.
              Save(ctx)
      if err != nil {
@@ -43,20 +43,20 @@ func (repo *{{ .LowerCamelName }}Repository) Add{{ .CamelName }} (ctx context.Co
      }, err
  }
 
-func (repo *{{ .LowerCamelName }}Repository) Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} model.{{ .CamelName }}) (int, error) {
-     return repo.client.{{ .CamelName }}.Update().
+func (repo *{{ .SnakeName | LowerCamel }}Repository) Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} model.{{ .SnakeName | CaseName }}) (int, error) {
+     return repo.client.{{ .SnakeName | CaseName }}.Update().
              Where({{ .SnakeName }}.ID(id)).
              // TODO implement your business.
              Save(ctx)
 }
 
-func (repo *{{ .LowerCamelName }}Repository) List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .CamelName }}, error) {
-     total, err := repo.client.{{ .CamelName }}.Query().Count(ctx)
+func (repo *{{ .SnakeName | LowerCamel }}Repository) List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .SnakeName | CaseName }}, error) {
+     total, err := repo.client.{{ .SnakeName | CaseName }}.Query().Count(ctx)
      if err != nil {
          return 0, nil, err
      }
 
-     var list []*model.{{ .CamelName }}
+     var list []*model.{{ .SnakeName | CaseName }}
      err = repo.client.User.Query().
         // TODO implement your business.
         Offset(offset).
@@ -70,9 +70,9 @@ func (repo *{{ .LowerCamelName }}Repository) List{{ .CamelName }} (ctx context.C
      return total, list, nil
 }
 
-func (repo *{{ .LowerCamelName }}Repository) Show{{ .CamelName }} (ctx context.Context, id int) (*model.{{ .CamelName }}, error) {
-     var {{ .LowerCamelName | FirstLetter }} *model.{{ .CamelName }}
-     err := repo.client.{{ .CamelName }}.Query().
+func (repo *{{ .SnakeName | LowerCamel }}Repository) Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (*model.{{ .SnakeName | CaseName }}, error) {
+     var {{ .LowerCamelName | FirstLetter }} *model.{{ .SnakeName | CaseName }}
+     err := repo.client.{{ .SnakeName | CaseName }}.Query().
          Where({{ .SnakeName }}.ID(id)).
          Select().
          // TODO implement your business.
@@ -83,27 +83,27 @@ func (repo *{{ .LowerCamelName }}Repository) Show{{ .CamelName }} (ctx context.C
      return {{ .LowerCamelName | FirstLetter }}, nil
 }
 
-func (repo *{{ .LowerCamelName }}Repository) Delete{{ .CamelName }} (ctx context.Context, id int) (int, error) {
-     return repo.client.{{ .CamelName }}.Delete().
+func (repo *{{ .SnakeName | LowerCamel }}Repository) Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error) {
+     return repo.client.{{ .SnakeName | CaseName }}.Delete().
          Where({{ .SnakeName }}.ID(id)).
          // TODO implement your business.
          Exec(ctx)
 }
 
- // {{ .InjectInterfaceImpl }}
+  //  InjectInterfaceImpl 
 {{ end }}
 
 {{ define "repository_interface" }}
-    New{{ .CamelName }}Repository() {{ .CamelName }}Repository
-    // {{ .InjectInterface }}
+    New{{ .SnakeName | CaseName }}Repository() {{ .SnakeName | CaseName }}Repository
+    // InjectInterface 
 {{end}}
 
 {{ define "repository_interface_impl" }}
-func (repo *repository) New{{ .CamelName }}Repository() {{ .CamelName }}Repository {
-    return new{{ .CamelName }}Repository(repo.client)
+func (repo *repository) New{{ .SnakeName | CaseName }}Repository() {{ .SnakeName | CaseName }}Repository {
+    return new{{ .SnakeName | CaseName }}Repository(repo.client)
 }
 
-// {{ .InjectInterfaceImpl }}
+ //  InjectInterfaceImpl 
 {{end}}
 
 {{ define "repository" }}
@@ -122,7 +122,7 @@ type repository struct {
 // the function name use Camel-Case define should be like this.
 // the action is prefix the domain is middle and the other is suffix.
 type IRepository interface {
-    // {{ .InjectInterface }}
+    //  InjectInterface 
 }
 
 func New(client *ent.Client) IRepository {
@@ -131,6 +131,6 @@ func New(client *ent.Client) IRepository {
     }
 }
 
-// {{ .InjectInterfaceImpl }}
+ //  InjectInterfaceImpl 
 
 {{ end }}

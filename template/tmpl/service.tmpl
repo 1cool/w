@@ -2,68 +2,68 @@
 package service
 
 import (
-    "{{.Module }}/{{ .InternalDir }}/ent"
-    "{{.Module }}/{{ .InternalDir }}/repository"
+    "{{ .InternalDir }}/ent"
+    "{{ .InternalDir }}/repository"
     "context"
 )
 
-type {{ .LowerCamelName }}Service struct {
-    repo repository.{{ .CamelName }}Repository
+type {{ .SnakeName | LowerCamel }}Service struct {
+    repo repository.{{ .SnakeName | CaseName }}Repository
 }
 
-// {{ .CamelName }}Service statement service's abilities.
+// {{ .SnakeName | CaseName }}Service statement service's abilities.
 // the function's name use Camel-Case define should be like this:
 // the filename prefix and the action suffix.
-type {{ .CamelName }}Service interface {
-    Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} ent.{{ .CamelName }}) (*ent.{{ .CamelName }}, error)
-    Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName }} ent.{{ .CamelName }}) (int, error)
-    List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .CamelName }}, error)
-    Show{{ .CamelName }} (ctx context.Context, id int) (*ent.{{ .CamelName }}, error)
-    Delete{{ .CamelName }} (ctx context.Context, id int) (int, error)
+type {{ .SnakeName | CaseName }}Service interface {
+    Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} ent.{{ .SnakeName | CaseName }}) (*ent.{{ .SnakeName | CaseName }}, error)
+    Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} ent.{{ .SnakeName | CaseName }}) (int, error)
+    List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .SnakeName | CaseName }}, error)
+    Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (*ent.{{ .SnakeName | CaseName }}, error)
+    Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error)
 
-    // {{ .InjectInterface }}
+    // InjectInterface
 }
 
-func new{{ .CamelName }}Service (repo repository.{{ .CamelName }}Repository) {{ .CamelName }}Service {
-    return &{{ .LowerCamelName }}Service{
+func new{{ .SnakeName | CaseName }}Service (repo repository.{{ .SnakeName | CaseName }}Repository) {{ .SnakeName | CaseName }}Service {
+    return &{{ .SnakeName | LowerCamel }}Service{
         repo: repo,
     }
 }
 
-func (srv *{{ .LowerCamelName }}Service) Add{{ .CamelName }} (ctx context.Context, {{ .LowerCamelName }} ent.{{ .CamelName }}) (*ent.{{ .CamelName }}, error) {
-     return  srv.repo.Add{{ .CamelName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} ent.{{ .SnakeName | CaseName }}) (*model.{{ .SnakeName | CaseName }}, error) {
+     return  srv.repo.Add{{ .SnakeName | CaseName }}(ctx)
  }
 
-func (srv *{{ .LowerCamelName }}Service) Update{{ .CamelName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} ent.{{ .CamelName }}) (int, error) {
-     return srv.repo.Update{{ .CamelName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} ent.{{ .SnakeName | CaseName }}) (int, error) {
+     return srv.repo.Update{{ .SnakeName | CaseName }}(ctx)
 }
 
-func (srv *{{ .LowerCamelName }}Service) List{{ .CamelName }} (ctx context.Context, offset, limit int) (int, []*ent.{{ .CamelName }}, error) {
-     return srv.repo.List{{ .CamelName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .SnakeName | CaseName }}, error) {
+     return srv.repo.List{{ .SnakeName | CaseName }}(ctx)
 }
 
-func (srv *{{ .LowerCamelName }}Service) Show{{ .CamelName }} (ctx context.Context, id int) (*ent.{{ .CamelName }}, error) {
-     return srv.repo.Show{{ .CamelName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (*ent.{{ .SnakeName | CaseName }}, error) {
+     return srv.repo.Show{{ .SnakeName | CaseName }}(ctx)
 }
 
-func (srv *{{ .LowerCamelName }}Service) Delete{{ .CamelName }} (ctx context.Context, id int) (int, error) {
-       return srv.repo.Delete{{ .CamelName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error) {
+       return srv.repo.Delete{{ .SnakeName | CaseName }}(ctx)
 }
 
- // {{ .InjectInterfaceImpl }}
+ // InjectInterfaceImpl
 {{ end }}
 
 {{ define "service_interface" }}
-    New{{ .CamelName }}Service() {{ .CamelName }}Service
-    // {{ .InjectInterface }}
+    New{{ .SnakeName | CaseName }}Service() {{ .SnakeName | CaseName }}Service
+    // InjectInterface
 {{end}}
 
 {{ define "service_interface_impl" }}
-func (srv *service) New{{ .CamelName }}Service() {{ .CamelName }}Service {
-    return new{{ .CamelName }}Service(srv.repo.New{{ .CamelName }}Repository())
+func (srv *service) New{{ .SnakeName | CaseName }}Service() {{ .SnakeName | CaseName }}Service {
+    return new{{ .SnakeName | CaseName }}Service(srv.repo.New{{ .SnakeName | CaseName }}Repository())
 }
 
-// {{ .InjectInterfaceImpl }}
+// InjectInterfaceImpl
 {{end}}
 
 {{ define "service" }}
@@ -81,7 +81,7 @@ type service struct {
 // the function's name use Camel-Case define should be like this:
 // the filename prefix and the action suffix.
 type IService interface {
-    // {{ .InjectInterface }}
+    // InjectInterface
 }
 
 func New(repository repository.IRepository) IService {
@@ -90,5 +90,5 @@ func New(repository repository.IRepository) IService {
 	}
 }
 
-// {{ .InjectInterfaceImpl }}
+// InjectInterfaceImpl
 {{end}}

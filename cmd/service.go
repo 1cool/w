@@ -4,15 +4,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	template2 "github.com/1cool/w/template"
 	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 )
 
@@ -44,20 +40,16 @@ gapi new service user.`,
 		}
 
 		gen.Module = moduleName
-		gen.setVariable()
-		gen.CamelName = strcase.ToCamel(name)
-		gen.LowerCamelName = strcase.ToLowerCamel(name)
+		gen.setDir()
 		gen.SnakeName = strcase.ToSnake(name)
-		gen.FuncName = strcase.ToCamel(args[1])
-		gen.Type = TypeService
 
-		err = gen.NewService()
+		//err = gen.NewService()
 
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("new service successful", gen.SnakeName, gen.FuncName)
+		//fmt.Println("new service successful", gen.SnakeName, gen.FuncName)
 		return nil
 	},
 }
@@ -76,40 +68,40 @@ func init() {
 	// serviceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func (gen *Generator) NewService() error {
-	gen.TargetFuncFile = filepath.Join(gen.ServiceDir, gen.SnakeName+".go")
-	gen.TargetInterfaceFile = filepath.Join(gen.ServiceDir, "service.go")
-	gen.InjectInterfaceEntity = bytes.Buffer{}
-	gen.TemplateFunc = bytes.Buffer{}
-	gen.TemplateInterface = bytes.Buffer{}
-	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
-	gen.InjectInterface = "{{ .InjectInterface }}"
-
-	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "service_entity", gen)
-	if err != nil {
-		return err
-	}
-	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
-	if err != nil {
-		return err
-	}
-
-	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
-	if err != nil {
-		return err
-	}
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "service_interface", gen)
-	if err != nil {
-		return err
-	}
-	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
-	if err != nil {
-		return err
-	}
-	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_impl", gen)
-	if err != nil {
-		return err
-	}
-	newInterfaceData = strings.Replace(newInterfaceData, "// {{ .InjectInterfaceImpl }}", gen.TemplateFunc.String(), 1)
-	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
-}
+//func (gen *Generator) NewService() error {
+//	gen.TargetFuncFile = filepath.Join(gen.ServiceDir, gen.SnakeName+".go")
+//	gen.TargetInterfaceFile = filepath.Join(gen.ServiceDir, "service.go")
+//	gen.InjectInterfaceEntity = bytes.Buffer{}
+//	gen.TemplateFunc = bytes.Buffer{}
+//	gen.TemplateInterface = bytes.Buffer{}
+//	gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
+//	gen.InjectInterface = "{{ .InjectInterface }}"
+//
+//	err := gen.tmpl.ExecuteTemplate(&gen.InjectInterfaceEntity, "service_entity", gen)
+//	if err != nil {
+//		return err
+//	}
+//	err = WriteToFile(gen.TargetFuncFile, gen.InjectInterfaceEntity.Bytes())
+//	if err != nil {
+//		return err
+//	}
+//
+//	interfaceData, err := os.ReadFile(gen.TargetInterfaceFile)
+//	if err != nil {
+//		return err
+//	}
+//	err = gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "service_interface", gen)
+//	if err != nil {
+//		return err
+//	}
+//	newInterfaceData := strings.Replace(string(interfaceData), "// {{ .InjectInterface }}", gen.TemplateInterface.String(), 1)
+//	if err != nil {
+//		return err
+//	}
+//	err = gen.tmpl.ExecuteTemplate(&gen.TemplateFunc, "service_interface_impl", gen)
+//	if err != nil {
+//		return err
+//	}
+//	newInterfaceData = strings.Replace(newInterfaceData, "// {{ .InjectInterfaceImpl }}", gen.TemplateFunc.String(), 1)
+//	return WriteToFile(gen.TargetInterfaceFile, []byte(newInterfaceData))
+//}

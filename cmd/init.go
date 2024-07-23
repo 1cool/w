@@ -5,13 +5,10 @@ package cmd
 
 import (
 	"fmt"
-	template2 "github.com/1cool/w/template"
-	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
-	"text/template"
 )
 
 // initCmd represents the init command
@@ -32,17 +29,7 @@ w init project`,
 		}
 
 		projectName := args[0]
-		gen = &Generator{
-			SnakeName: strcase.ToSnake(projectName),
-			tmpl: template.Must(
-				template.New("").
-					Funcs(template.FuncMap{
-						"ToSlash":     filepath.ToSlash,
-						"FirstLetter": firstLetter,
-					}).
-					ParseFS(template2.TemplateDir, "tmpl/*.tmpl"),
-			),
-		}
+		gen = NewGenerate(projectName)
 
 		if fileIsExisted(gen.SnakeName) {
 			return errors.New(fmt.Sprintf("the %s is existed not need init.\n", gen.SnakeName))
@@ -53,20 +40,9 @@ w init project`,
 		}
 
 		gen.WorkDir = filepath.Join("", gen.SnakeName)
+		gen.Module = gen.SnakeName
 		// variable
-		gen.CamelName = "Example"
-		gen.setVariable()
-
-		if !fileIsExisted(gen.InternalDir) {
-			err := os.MkdirAll(gen.InternalDir, os.ModePerm)
-			if err != nil {
-				return errors.Wrapf(err, "internal dir init error")
-			}
-		}
-
-		gen.InjectInterfaceImpl = "{{ .InjectInterfaceImpl }}"
-		gen.InjectInterface = "{{ .InjectInterface }}"
-
+		gen.setDir()
 		_, err = gen.NewEntSchema()
 		if err != nil {
 			return errors.Wrapf(err, "ent new error")
@@ -77,52 +53,52 @@ w init project`,
 			return errors.Wrapf(err, "go generate error")
 		}
 
-		err = gen.InitGenerate("repository.go", gen.RepositoryDir, "repository")
+		err = gen.Generate(filepath.Join(gen.RepositoryDir, "repository.go"), "repository", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "repository init error")
 		}
 
-		err = gen.InitGenerate("service.go", gen.ServiceDir, "service")
+		err = gen.Generate(filepath.Join(gen.ServiceDir, "service.go"), "service", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "service init error")
 		}
 
-		err = gen.InitGenerate("gintransport.go", gen.HandlerDir, "handler.tmpl")
+		err = gen.Generate(filepath.Join(gen.HandlerDir, "gintransport.go"), "handler.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "handler init error")
 		}
 
-		err = gen.InitGenerate("example.go", gen.HandlerDir, "handler_example.tmpl")
-		if err != nil {
-			return errors.Wrapf(err, "handler example init error")
-		}
+		//err = gen.InitGenerate("example.go", gen.HandlerDir, "handler_example.tmpl")
+		//if err != nil {
+		//	return errors.Wrapf(err, "handler example init error")
+		//}
 
-		err = gen.InitGenerate("config.go", gen.ModelDir, "config.tmpl")
+		err = gen.Generate(filepath.Join(gen.ModelDir, "config.go"), "config.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "config init error")
 		}
 
-		err = gen.InitGenerate("viper.go", gen.ConfigDir, "viper.tmpl")
+		err = gen.Generate(filepath.Join(gen.ConfigDir, "viper.go"), "viper.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "viper init error")
 		}
 
-		err = gen.InitGenerate("database.go", gen.DatabaseDir, "database.tmpl")
+		err = gen.Generate(filepath.Join(gen.DatabaseDir, "database.go"), "database.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "database init error")
 		}
 
-		err = gen.InitGenerate("mysql.go", gen.DatabaseDir, "mysql.tmpl")
+		err = gen.Generate(filepath.Join(gen.DatabaseDir, "mysql.go"), "mysql.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "mysql init error")
 		}
 
-		err = gen.InitGenerate("main.go", gen.WorkDir, "main.tmpl")
+		err = gen.Generate(filepath.Join(gen.WorkDir, "main.go"), "main.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "main init error")
 		}
 
-		err = gen.InitGenerate("config.yaml", gen.WorkDir, "configyaml.tmpl")
+		err = gen.Generate(filepath.Join(gen.WorkDir, "config.yaml"), "configyaml.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "config.yaml init error")
 		}
