@@ -1,4 +1,17 @@
 package response
 
-type {{ .SnakeName | CaseName }}Response struct {
+type {{ .SnakeName | CaseName }}Add struct {
+}
+
+type {{ .SnakeName | CaseName }}Update  struct {
+}
+
+type {{ .SnakeName | CaseName }} struct {
+}
+
+type {{ .SnakeName | CaseName }}List struct {
+    Total int `json:"total"`
+    Page int `json:"page"`
+    PerPage int `json:"per_page"`
+    List []{{ .SnakeName | CaseName }} `json:"list"`
 }
