@@ -23,7 +23,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return errors.New("project_name needs to be provided")
+			return errors.New("request name needs to be provided")
 		}
 		gen := NewGenerate(args[0])
 		moduleName, err := ReadModuleNameFromGoModFile()
@@ -33,8 +33,12 @@ to quickly create a Cobra application.`,
 		gen.Module = moduleName
 		gen.setDir()
 
-		gen.Generate(filepath.Join(gen.RequestDir, "", ActionCreate))
-		fmt.Println("request called")
+		err = gen.Generate(filepath.Join(gen.RequestDir, gen.SnakeName+".go"), "request.tmpl", ActionCreate)
+		if err != nil {
+			return err
+		}
+		fmt.Println("request new successful")
+		return nil
 	},
 }
 
@@ -50,10 +54,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// requestCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func (gen *Generator) newRequest() error {
-	gen.setDir()
-	gen.tmpl.ExecuteTemplate(&gen.TemplateInterface, "repository_interface", gen)
-
 }

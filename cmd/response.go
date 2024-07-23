@@ -4,8 +4,10 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"path/filepath"
 )
 
 // responseCmd represents the response command
@@ -19,9 +21,22 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ReadModuleNameFromGoModFile()
-		//gen := Generator{}
-		fmt.Println("response called")
+		if len(args) < 1 {
+			return errors.New("response name needs to be provided")
+		}
+		gen := NewGenerate(args[0])
+		moduleName, err := ReadModuleNameFromGoModFile()
+		if err != nil {
+			return err
+		}
+		gen.Module = moduleName
+		gen.setDir()
+
+		err = gen.Generate(filepath.Join(gen.ResponseDir, gen.SnakeName+".go"), "response.tmpl", ActionCreate)
+		if err != nil {
+			return err
+		}
+		fmt.Println("request new successful")
 		return nil
 	},
 }
