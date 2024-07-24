@@ -40,7 +40,7 @@ new repository user addUser`,
 }
 
 func init() {
-	newCmd.AddCommand(repositoryCmd)
+	//newCmd.AddCommand(repositoryCmd)
 
 	// Here you will define your flags and configuration settings.
 

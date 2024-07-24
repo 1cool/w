@@ -4,6 +4,7 @@ import (
 	"bytes"
 	template2 "github.com/1cool/w/template"
 	"github.com/iancoleman/strcase"
+	"github.com/jinzhu/inflection"
 	"log"
 	"os"
 	"path/filepath"
@@ -257,6 +258,7 @@ func NewGenerate(name string) *Generator {
 					"CaseName":    strcase.ToCamel,
 					"LowerCamel":  strcase.ToLowerCamel,
 					"Snake":       strcase.ToSnake,
+					"Plural":      inflection.Plural,
 				}).
 				ParseFS(template2.TemplateDir, "tmpl/*.tmpl"),
 		),

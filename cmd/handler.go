@@ -42,7 +42,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	newCmd.AddCommand(handlerCmd)
+	//newCmd.AddCommand(handlerCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -15,11 +15,11 @@ type {{ .SnakeName | LowerCamel }}Service struct {
 // the function's name use Camel-Case define should be like this:
 // the filename prefix and the action suffix.
 type {{ .SnakeName | CaseName }}Service interface {
-    Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error)
-    Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} request.Update{{ .SnakeName | CaseName }}) (int, error)
-    List{{ .SnakeName | CaseName }} (ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error)
-    Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error)
-    Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error)
+    Add{{ .SnakeName | CaseName }}(ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error)
+    Update{{ .SnakeName | CaseName }}(ctx context.Context, id int, {{ .SnakeName | LowerCamel }} request.Update{{ .SnakeName | CaseName }}) (int, error)
+    List{{ .SnakeName | CaseName }}(ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error)
+    Show{{ .SnakeName | CaseName }}(ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error)
+    Delete{{ .SnakeName | CaseName }}(ctx context.Context, id int) (int, error)
 
     // InjectInterface
 }

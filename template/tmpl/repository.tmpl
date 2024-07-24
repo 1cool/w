@@ -16,11 +16,11 @@ type {{ .SnakeName | LowerCamel }}Repository struct {
 // the function name use Camel-Case define should be like this.
 // the action is prefix the domain is middle and the other is suffix.
 type  {{ .SnakeName | CaseName }}Repository interface {
-    Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (*model.{{ .SnakeName | CaseName }}, error)
-    Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (int, error)
-    List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) (int, []*model.{{ .SnakeName | CaseName }}, error)
-    Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (*model.{{ .SnakeName | CaseName }}, error)
-    Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error)
+    Add{{ .SnakeName | CaseName }}(ctx context.Context, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (*model.{{ .SnakeName | CaseName }}, error)
+    Update{{ .SnakeName | CaseName }}(ctx context.Context, id int, {{ .SnakeName | LowerCamel }} model.{{ .SnakeName | CaseName }}) (int, error)
+    List{{ .SnakeName | CaseName }}(ctx context.Context, offset, limit int) (int, []*model.{{ .SnakeName | CaseName }}, error)
+    Show{{ .SnakeName | CaseName }}(ctx context.Context, id int) (*model.{{ .SnakeName | CaseName }}, error)
+    Delete{{ .SnakeName | CaseName }}(ctx context.Context, id int) (int, error)
 
     // InjectInterface
 }
@@ -132,7 +132,6 @@ func New(client *ent.Client) IRepository {
 }
 
  // InjectInterfaceImpl
-
 {{ end }}
 
 {{ define "model" }}

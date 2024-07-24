@@ -41,7 +41,7 @@ gapi new service user.`,
 }
 
 func init() {
-	newCmd.AddCommand(serviceCmd)
+	//newCmd.AddCommand(serviceCmd)
 
 	// Here you will define your flags and configuration settings.
 

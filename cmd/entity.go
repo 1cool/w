@@ -8,18 +8,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"log"
+	"path/filepath"
 )
 
 // entityCmd represents the entity command
 var entityCmd = &cobra.Command{
 	Use:   "entity",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "new entity",
+	Long:  `generate model ent schema repository service handler request response`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			log.Fatalln("entity name needs to be provided")
@@ -67,6 +63,11 @@ to quickly create a Cobra application.`,
 			return err
 		}
 
+		err = gen.NewRouter()
+		if err != nil {
+			return err
+		}
+
 		fmt.Println("new entity successful", gen.SnakeName)
 		return nil
 	},
@@ -84,4 +85,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// entityCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func (gen *Generator) NewRouter() error {
+	gen.UpdatePosition = "// InjectRouter"
+	return gen.Generate(filepath.Join(gen.HandlerDir, "gintransport.go"), "router.tmpl", ActionUpdate)
 }

@@ -16,8 +16,7 @@ func GinHandler(srv service.IService) http.Handler {
 	r := gin.New()
 	v1 := r.Group("/api/v1")
 	v1.GET("/example", h.example)
-
-    // TODO implement your business.
+    // InjectRouter
 	return r
 }
 
