@@ -118,6 +118,16 @@ w init project`,
 			return errors.Wrapf(err, "constant.yaml init error")
 		}
 
+		err = gen.Generate(filepath.Join(gen.LogrotateDir, gen.SnakeName), "logrotated", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "logrotated init error")
+		}
+
+		err = gen.Generate(filepath.Join(gen.SystemdDir, gen.SnakeName+".service"), "systemd", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "systemd init error")
+		}
+
 		fmt.Println("init successful")
 		fmt.Println("please cd your project dirname,then edit your config file `config.yaml`")
 		fmt.Println("finally please run `go mod tidy && go run main.go`")

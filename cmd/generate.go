@@ -37,6 +37,9 @@ type Generator struct {
 	ModelDir       string
 	RepositoryDir  string
 	ServiceDir     string
+	LogrotateDir   string
+	SystemdDir     string
+	DocDir         string
 	tmpl           *template.Template
 }
 
@@ -61,6 +64,9 @@ func (gen *Generator) setDir() {
 	gen.ConfigDir = filepath.Join(gen.InternalDir, "config")
 	gen.RequestDir = filepath.Join(gen.HandlerDir, "request")
 	gen.ResponseDir = filepath.Join(gen.HandlerDir, "response")
+	gen.LogrotateDir = filepath.Join(gen.WorkDir, "script/logrotate.d")
+	gen.SystemdDir = filepath.Join(gen.WorkDir, "script/systemd")
+	gen.DocDir = filepath.Join(gen.WorkDir, "doc")
 
 	os.MkdirAll(gen.InternalDir, os.ModePerm)
 	os.MkdirAll(gen.RepositoryDir, os.ModePerm)
@@ -71,6 +77,9 @@ func (gen *Generator) setDir() {
 	os.MkdirAll(gen.DatabaseDir, os.ModePerm)
 	os.MkdirAll(gen.ModelDir, os.ModePerm)
 	os.MkdirAll(gen.ConfigDir, os.ModePerm)
+	os.MkdirAll(gen.LogrotateDir, os.ModePerm)
+	os.MkdirAll(gen.SystemdDir, os.ModePerm)
+	os.MkdirAll(gen.DocDir, os.ModePerm)
 }
 
 func (gen *Generator) EntGenerate() (string, error) {

@@ -1,0 +1,58 @@
+{{define "logrotated"}}
+/usr/share/nginx/{{ .SnakeName }}/*.log {
+       missingok
+       daily
+       notifempty
+       compress
+       copytruncate
+       dateyesterday
+}
+{{end}}
+
+{{define "systemd"}}
+[Unit]
+Description={{ .SnakeName }}
+After=network.target syslog.target
+
+[Service]
+PIDFile=/var/run/taotie.pid
+WorkingDirectory=/usr/share/nginx/{{ .SnakeName }}
+ExecStart=/usr/share/nginx/{{ .SnakeName }}/{{ .SnakeName }}
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+# 设置环境变量
+Environment="GIN_MODE=release"
+
+KillMode=control-group
+#control-group（默认值）：当前控制组里面的所有子进程，都会被杀掉
+#process：只杀主进程
+#mixed：主进程将收到 SIGTERM 信号，子进程收到 SIGKILL 信号
+#none：没有进程会被杀掉，只是执行服务的 stop 命令。
+
+Restart=always
+#no（默认值）：退出后不会重启
+#on-success：只有正常退出时（退出状态码为0），才会重启
+#on-failure：非正常退出时（退出状态码非0），包括被信号终止和超时，才会重启
+#on-abnormal：只有被信号终止和超时，才会重启
+#on-abort：只有在收到没有捕捉到的信号终止时，才会重启
+#on-watchdog：超时退出，才会重启
+#always：不管是什么退出原因，总是重启
+
+Type=simple
+#simple（默认值）：ExecStart字段启动的进程为主进程
+#forking：ExecStart字段将以fork()方式启动，此时父进程将会退出，子进程将成为主进程
+#oneshot：类似于simple，但只执行一次，Systemd 会等它执行完，才启动其他服务
+#dbus：类似于simple，但会等待 D-Bus 信号后启动
+#notify：类似于simple，启动结束后会发出通知信号，然后 Systemd 再启动其他服务
+#idle：类似于simple，但是要等到其他任务都执行完，才会启动该服务。一种使用场合是为让该服务的输出，不与其他服务的输出相混合
+
+# PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
+{{end}}
+
+{{define "script_readme"}}
+/etc/logrotate.d/ # 使用logrotated切割日志
+
+/usr/lib/systemd/system # 使用systemd托管服务
+{{end}}
