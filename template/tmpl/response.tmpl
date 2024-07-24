@@ -1,17 +1,16 @@
 package response
+import "{{ .Module }}/{{ .InternalDir }}/model"
 
-type {{ .SnakeName | CaseName }}Add struct {
+type Add{{ .SnakeName | CaseName }} struct {
 }
 
-type {{ .SnakeName | CaseName }}Update  struct {
+type Update{{ .SnakeName | CaseName }}  struct {
 }
 
 type {{ .SnakeName | CaseName }} struct {
 }
 
-type {{ .SnakeName | CaseName }}List struct {
-    Total int `json:"total"`
-    Page int `json:"page"`
-    PerPage int `json:"per_page"`
+type List{{ .SnakeName | CaseName }} struct {
+    model.Pagination
     List []{{ .SnakeName | CaseName }} `json:"list"`
 }

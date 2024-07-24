@@ -1,7 +1,110 @@
-func (h *handler) {{ .FuncName }} (ctx *gin.Context) {
+package httptransport
+
+import (
+	"{{ .Module }}/{{ .HandlerDir }}/request"
+	"{{ .Module }}/internal"
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
+	"net/http"
+)
+
+func (h *handler) Add{{ .SnakeName | CaseName }} (ctx *gin.Context) {
+    var req request.Add{{ .SnakeName | CaseName }}
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response(nil, err.Error()))
+		return
+	}
+
     // TODO implement your business.
 
-    ctx.JSON(http.StatusOK, nil)
+    res, err := h.srv.New{{ .SnakeName | CaseName }}Service().Add{{ .SnakeName | CaseName }}(ctx, req)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, response(nil, err.Error()))
+        return
+    }
+
+    ctx.JSON(http.StatusOK, response(res, ""))
 }
 
-// {{ .InjectHandlerFunc }}
+func (h *handler) Update{{ .SnakeName | CaseName }} (ctx *gin.Context) {
+    id := ctx.Param("id")
+	if id == "" {
+		ctx.JSON(http.StatusBadRequest, response(nil, internal.ParamError))
+		return
+	}
+    var req request.Update{{ .SnakeName | CaseName }}
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response(nil, err.Error()))
+		return
+	}
+
+    // TODO implement your business.
+
+    res, err := h.srv.New{{ .SnakeName | CaseName }}Service().Update{{ .SnakeName | CaseName }}(ctx, cast.ToInt(id), req)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, response(nil, err.Error()))
+        return
+    }
+
+    ctx.JSON(http.StatusOK, response(res, ""))
+}
+
+func (h *handler) Show{{ .SnakeName | CaseName }} (ctx *gin.Context) {
+    id := ctx.Param("id")
+    if id == "" {
+        ctx.JSON(http.StatusBadRequest, response(nil, internal.ParamError))
+        return
+    }
+
+    // TODO implement your business.
+
+    res, err := h.srv.New{{ .SnakeName | CaseName }}Service().Show{{ .SnakeName | CaseName }}(ctx, cast.ToInt(id))
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, response(nil, err.Error()))
+        return
+    }
+
+    ctx.JSON(http.StatusOK, response(res, ""))
+}
+
+func (h *handler) Delete{{ .SnakeName | CaseName }}(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		ctx.JSON(http.StatusBadRequest, response(nil, internal.ParamError))
+		return
+	}
+	// TODO implement your business.
+
+	res, err := h.srv.New{{ .SnakeName | CaseName }}Service().Delete{{ .SnakeName | CaseName }}(ctx, cast.ToInt(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response(nil, err.Error()))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response(res, ""))
+}
+
+func (h *handler) List{{ .SnakeName | CaseName }}(ctx *gin.Context) {
+	pageStr := ctx.Query("page")
+	perPageStr := ctx.Query("per_page")
+
+	page := cast.ToInt(pageStr)
+	perPage := cast.ToInt(perPageStr)
+
+	if page <= 0 || perPage <= 0 {
+		ctx.JSON(http.StatusBadRequest, response(nil, internal.ParamError))
+		return
+	}
+
+	if perPage == 0 {
+		perPage = 10
+	}
+
+	users, err := h.srv.New{{ .SnakeName | CaseName }}Service().List{{ .SnakeName | CaseName }}(ctx, page, perPage)
+	if err != nil {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response(users, ""))
+}
+

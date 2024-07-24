@@ -2,8 +2,8 @@
 package service
 
 import (
-    "{{ .InternalDir }}/ent"
-    "{{ .InternalDir }}/repository"
+    "{{ .Module }}/{{ .InternalDir }}/ent"
+    "{{ .Module }}/{{ .InternalDir }}/repository"
     "context"
 )
 
@@ -15,9 +15,9 @@ type {{ .SnakeName | LowerCamel }}Service struct {
 // the function's name use Camel-Case define should be like this:
 // the filename prefix and the action suffix.
 type {{ .SnakeName | CaseName }}Service interface {
-    Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.{{ .SnakeName | CaseName }}Add) (response.{{ .SnakeName | CaseName }}Add, error)
-    Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} request.{{ .SnakeName | CaseName }}Update) (int, error)
-    List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) ([]response.{{ .SnakeName | CaseName }}List, error)
+    Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error)
+    Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel }} request.Update{{ .SnakeName | CaseName }}) (int, error)
+    List{{ .SnakeName | CaseName }} (ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error)
     Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error)
     Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error)
 
@@ -30,24 +30,53 @@ func new{{ .SnakeName | CaseName }}Service (repo repository.{{ .SnakeName | Case
     }
 }
 
-func (srv *{{ .SnakeName | LowerCamel }}Service) Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.{{ .SnakeName | CaseName }}Add) (response.{{ .SnakeName | CaseName }}Add, error) {
-     return  srv.repo.Add{{ .SnakeName | CaseName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error) {
+     _, err := srv.repo.Add{{ .SnakeName | CaseName }}(ctx, model.{{ .SnakeName | CaseName }}{})
+     // TODO implement your business.
+     if err != nil {
+        return response.Add{{ .SnakeName | CaseName }}{}, err
+     }
+     return response.Add{{ .SnakeName | CaseName }}{}, nil
  }
 
-func (srv *{{ .SnakeName | LowerCamel }}Service) Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .LowerCamelName | FirstLetter}} request.{{ .SnakeName | CaseName }}Update) (int, error) {
-     return srv.repo.Update{{ .SnakeName | CaseName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel | FirstLetter}} request.Update{{ .SnakeName | CaseName }}) (int, error) {
+     // TODO implement your business.
+     return srv.repo.Update{{ .SnakeName | CaseName }}(ctx, id, model.{{ .SnakeName | CaseName }}{})
 }
 
-func (srv *{{ .SnakeName | LowerCamel }}Service) List{{ .SnakeName | CaseName }} (ctx context.Context, offset, limit int) ([]response.{{ .SnakeName | CaseName }}List, error) {
-     return srv.repo.List{{ .SnakeName | CaseName }}(ctx)
+func (srv *{{ .SnakeName | LowerCamel }}Service) List{{ .SnakeName | CaseName }} (ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error) {
+     total, {{ .SnakeName | LowerCamel }}, err := srv.repo.List{{ .SnakeName | CaseName }}(ctx, (page-1)*perPage, perPage)
+     if err != nil {
+        return response.List{{ .SnakeName | CaseName }}{}, err
+     }
+     data := response.List{{ .SnakeName | CaseName }}{
+        Pagination: model.Pagination{
+            Total:   total,
+            PerPage: perPage,
+            Page:    page,
+        },
+     }
+     for _, _ = range {{ .SnakeName | LowerCamel }} {
+        // TODO implement your business.
+        data.List = append(data.List, response.{{ .SnakeName | CaseName }}{})
+     }
+     if len(data.List) == 0 {
+        data.List = make([]response.{{ .SnakeName | CaseName }}, 0)
+     }
+     return data, nil
 }
 
 func (srv *{{ .SnakeName | LowerCamel }}Service) Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error) {
-     return srv.repo.Show{{ .SnakeName | CaseName }}(ctx)
+     _, err := srv.repo.Show{{ .SnakeName | CaseName }}(ctx, id)
+     // TODO implement your business.
+     if err != nil {
+        return response.{{ .SnakeName | CaseName }}{}, err
+     }
+     return response.{{ .SnakeName | CaseName }}{}, nil
 }
 
 func (srv *{{ .SnakeName | LowerCamel }}Service) Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error) {
-       return srv.repo.Delete{{ .SnakeName | CaseName }}(ctx)
+     return srv.repo.Delete{{ .SnakeName | CaseName }}(ctx, id)
 }
 
  // InjectInterfaceImpl

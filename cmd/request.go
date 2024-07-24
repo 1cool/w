@@ -32,8 +32,7 @@ to quickly create a Cobra application.`,
 		}
 		gen.Module = moduleName
 		gen.setDir()
-
-		err = gen.Generate(filepath.Join(gen.RequestDir, gen.SnakeName+".go"), "request.tmpl", ActionCreate)
+		err = gen.NewRequest()
 		if err != nil {
 			return err
 		}
@@ -54,4 +53,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// requestCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func (gen *Generator) NewRequest() error {
+	return gen.Generate(filepath.Join(gen.RequestDir, gen.SnakeName+".go"), "request.tmpl", ActionCreate)
 }

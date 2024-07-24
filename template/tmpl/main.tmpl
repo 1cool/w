@@ -7,26 +7,57 @@ import (
     "{{ .RepositoryDir | ToSlash }}"
     "{{ .ServiceDir | ToSlash }}"
 	"log"
+	"log/slog"
+	"os"
+	"os/signal"
+	"context"
+    "errors"
 	"net/http"
+	"time"
 )
 
 func main() {
 	conf := config.NewViperConfig()
-    db, err := database.NewDatabase(conf.Database)
 
+    db, err := database.NewDatabase(conf.Database)
     if err != nil {
-        log.Fatalln(err)
+       log.Fatalln("NewDatabase error", err)
     }
 
     repo := repository.New(db)
     srv := service.New(repo)
 
-    h := httptransport.GinHandler(srv)
-    addr := conf.Http.Addr
+    handler := httptransport.GinHandler(srv)
     if "" == conf.Http.Addr {
-        addr = ":9025"
+        conf.Http.Addr = ":9025"
     }
+    httpSrv := &http.Server{
+        Addr:    conf.Http.Addr,
+        Handler: handler,
+    }
+    go func() {
+        if err = httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+           log.Fatalln("httpSrv ListenAndServe", "error", err)
+        }
+    }()
+    file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
 
-	log.Println("http.ListenAndServe ON: ", addr)
-	log.Fatalln(http.ListenAndServe(addr, h))
+    slog.SetDefault(slog.New(slog.NewJSONHandler(file, &slog.HandlerOptions{
+        Level: slog.LevelInfo,
+    })))
+    slog.Info("the http serve listen", "on", conf.Http.Addr)
+    // 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
+    quit := make(chan os.Signal)
+    signal.Notify(quit, os.Interrupt)
+    <-quit
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    if err = httpSrv.Shutdown(ctx); err != nil {
+       log.Fatalln("Server Shutdown", "error", err)
+    }
 }

@@ -89,7 +89,6 @@ func ReadModuleNameFromGoModFile() (string, error) {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "module ") {
 			modulePath := strings.TrimSpace(strings.TrimPrefix(line, "module "))
-			fmt.Println("Module path:", modulePath)
 			return modulePath, nil
 		}
 	}

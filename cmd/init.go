@@ -68,14 +68,19 @@ w init project`,
 			return errors.Wrapf(err, "handler init error")
 		}
 
-		//err = gen.InitGenerate("example.go", gen.HandlerDir, "handler_example.tmpl")
-		//if err != nil {
-		//	return errors.Wrapf(err, "handler example init error")
-		//}
+		err = gen.Generate(filepath.Join(gen.HandlerDir, "example.go"), "handler_example.tmpl", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "config init error")
+		}
 
 		err = gen.Generate(filepath.Join(gen.ModelDir, "config.go"), "config.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "config init error")
+		}
+
+		err = gen.Generate(filepath.Join(gen.ModelDir, "pagination.go"), "pagination.tmpl", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "pagination init error")
 		}
 
 		err = gen.Generate(filepath.Join(gen.ConfigDir, "viper.go"), "viper.tmpl", ActionCreate)
@@ -101,6 +106,16 @@ w init project`,
 		err = gen.Generate(filepath.Join(gen.WorkDir, "config.yaml"), "configyaml.tmpl", ActionCreate)
 		if err != nil {
 			return errors.Wrapf(err, "config.yaml init error")
+		}
+
+		err = gen.Generate(filepath.Join(gen.InternalDir, "error.go"), "error.tmpl", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "error.yaml init error")
+		}
+
+		err = gen.Generate(filepath.Join(gen.InternalDir, "constant.go"), "constant.tmpl", ActionCreate)
+		if err != nil {
+			return errors.Wrapf(err, "constant.yaml init error")
 		}
 
 		fmt.Println("init successful")

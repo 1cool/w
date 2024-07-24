@@ -4,6 +4,7 @@ import (
 	"{{ .ServiceDir | ToSlash }}"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"reflect"
 )
 
 type handler struct {
@@ -18,4 +19,21 @@ func GinHandler(srv service.IService) http.Handler {
 
     // TODO implement your business.
 	return r
+}
+
+// response 统一响应数据格式，
+// 解决empty slice return null 问题
+// 只负责响应结构统一，成功/失败/分页等结构由业务定义
+func response(data any, message string) gin.H {
+	if data == nil {
+		data = struct{}{}
+	} else if reflect.TypeOf(data).Kind() == reflect.Slice &&
+		reflect.ValueOf(data).Len() == 0 {
+		data = struct{}{}
+	}
+
+	return gin.H{
+		"message": message,
+		"data":    data,
+	}
 }
