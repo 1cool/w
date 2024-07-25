@@ -10,9 +10,9 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "w",
-	Short: "w is a cli tool for golang backend api with ent.",
-	Long:  `w is a cli tool for golang backend api with ent.`,
+	Use:   "wo",
+	Short: "wo is a cli tool for golang backend api with ent.",
+	Long:  `wo is a cli tool for golang backend api with ent.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bytes"
-	template2 "github.com/1cool/w/template"
+	template2 "github.com/1cool/wo/template"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
 	"log"

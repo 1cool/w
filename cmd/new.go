@@ -5,16 +5,10 @@ package cmd
 
 import (
 	"fmt"
-	template2 "github.com/1cool/w/template"
+	template2 "github.com/1cool/wo/template"
 	"github.com/spf13/cobra"
 	"path/filepath"
 	"text/template"
-)
-
-const (
-	TypeService    = "service"
-	TypeRepository = "repository"
-	TypeHandler    = "httptransport"
 )
 
 // newCmd represents the new command
