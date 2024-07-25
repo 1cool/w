@@ -42,13 +42,6 @@ func WriteToFile(newFile string, fileData []byte) error {
 	return nil
 }
 
-func generate() (string, error) {
-	return runCmdCommand("go", "", []string{
-		"generate",
-		"./ent",
-	}...)
-}
-
 func runCmdCommand(command string, dir string, args ...string) (string, error) {
 	var (
 		o bytes.Buffer
