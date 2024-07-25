@@ -14,7 +14,7 @@ import (
 // entityCmd represents the entity command
 var entityCmd = &cobra.Command{
 	Use:   "entity",
-	Short: "new entity",
+	Short: "new entity [name]",
 	Long:  `generate model ent schema repository service handler request response`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
