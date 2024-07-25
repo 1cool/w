@@ -1,6 +1,6 @@
 ### Quick Installation
 ```shell
-go install github.com/1cool/w@latest
+go install github.com/1cool/wo@latest
 ```
 ### Usage
 1、run init command
