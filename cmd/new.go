@@ -20,13 +20,10 @@ const (
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "new command for exit init project.",
+	Long: `For exit project run cli new command generate code. For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+w new [command] [name]`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		gen = &Generator{
 			tmpl: template.Must(
