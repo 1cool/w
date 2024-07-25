@@ -1,0 +1,5 @@
+v1.POST("/{{ .SnakeName | Plural }}", h.Add{{ .SnakeName | CaseName }})
+v1.PUT("/{{ .SnakeName | Plural }}/:id", h.Update{{ .SnakeName | CaseName }})
+v1.GET("/{{ .SnakeName | Plural }}/:id", h.Show{{ .SnakeName | CaseName }})
+v1.DELETE("/{{ .SnakeName | Plural }}/:id", h.Delete{{ .SnakeName | CaseName }})
+v1.GET("/{{ .SnakeName | Plural }}", h.List{{ .SnakeName | CaseName }})

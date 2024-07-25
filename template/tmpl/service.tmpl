@@ -1,0 +1,123 @@
+{{ define "service_entity" }}
+package service
+
+import (
+    "{{ .Module }}/{{ .InternalDir }}/ent"
+    "{{ .Module }}/{{ .InternalDir }}/repository"
+    "context"
+)
+
+type {{ .SnakeName | LowerCamel }}Service struct {
+    repo repository.{{ .SnakeName | CaseName }}Repository
+}
+
+// {{ .SnakeName | CaseName }}Service statement service's abilities.
+// the function's name use Camel-Case define should be like this:
+// the filename prefix and the action suffix.
+type {{ .SnakeName | CaseName }}Service interface {
+    Add{{ .SnakeName | CaseName }}(ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error)
+    Update{{ .SnakeName | CaseName }}(ctx context.Context, id int, {{ .SnakeName | LowerCamel }} request.Update{{ .SnakeName | CaseName }}) (int, error)
+    List{{ .SnakeName | CaseName }}(ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error)
+    Show{{ .SnakeName | CaseName }}(ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error)
+    Delete{{ .SnakeName | CaseName }}(ctx context.Context, id int) (int, error)
+
+    // InjectInterface
+}
+
+func new{{ .SnakeName | CaseName }}Service (repo repository.{{ .SnakeName | CaseName }}Repository) {{ .SnakeName | CaseName }}Service {
+    return &{{ .SnakeName | LowerCamel }}Service{
+        repo: repo,
+    }
+}
+
+func (srv *{{ .SnakeName | LowerCamel }}Service) Add{{ .SnakeName | CaseName }} (ctx context.Context, {{ .SnakeName | LowerCamel }} request.Add{{ .SnakeName | CaseName }}) (response.Add{{ .SnakeName | CaseName }}, error) {
+     _, err := srv.repo.Add{{ .SnakeName | CaseName }}(ctx, model.{{ .SnakeName | CaseName }}{})
+     // TODO implement your business.
+     if err != nil {
+        return response.Add{{ .SnakeName | CaseName }}{}, err
+     }
+     return response.Add{{ .SnakeName | CaseName }}{}, nil
+ }
+
+func (srv *{{ .SnakeName | LowerCamel }}Service) Update{{ .SnakeName | CaseName }} (ctx context.Context, id int, {{ .SnakeName | LowerCamel | FirstLetter}} request.Update{{ .SnakeName | CaseName }}) (int, error) {
+     // TODO implement your business.
+     return srv.repo.Update{{ .SnakeName | CaseName }}(ctx, id, model.{{ .SnakeName | CaseName }}{})
+}
+
+func (srv *{{ .SnakeName | LowerCamel }}Service) List{{ .SnakeName | CaseName }} (ctx context.Context, page, perPage int) (response.List{{ .SnakeName | CaseName }}, error) {
+     total, {{ .SnakeName | LowerCamel }}, err := srv.repo.List{{ .SnakeName | CaseName }}(ctx, (page-1)*perPage, perPage)
+     if err != nil {
+        return response.List{{ .SnakeName | CaseName }}{}, err
+     }
+     data := response.List{{ .SnakeName | CaseName }}{
+        Pagination: model.Pagination{
+            Total:   total,
+            PerPage: perPage,
+            Page:    page,
+        },
+     }
+     for _, _ = range {{ .SnakeName | LowerCamel }} {
+        // TODO implement your business.
+        data.List = append(data.List, response.{{ .SnakeName | CaseName }}{})
+     }
+     if len(data.List) == 0 {
+        data.List = make([]response.{{ .SnakeName | CaseName }}, 0)
+     }
+     return data, nil
+}
+
+func (srv *{{ .SnakeName | LowerCamel }}Service) Show{{ .SnakeName | CaseName }} (ctx context.Context, id int) (response.{{ .SnakeName | CaseName }}, error) {
+     _, err := srv.repo.Show{{ .SnakeName | CaseName }}(ctx, id)
+     // TODO implement your business.
+     if err != nil {
+        return response.{{ .SnakeName | CaseName }}{}, err
+     }
+     return response.{{ .SnakeName | CaseName }}{}, nil
+}
+
+func (srv *{{ .SnakeName | LowerCamel }}Service) Delete{{ .SnakeName | CaseName }} (ctx context.Context, id int) (int, error) {
+     return srv.repo.Delete{{ .SnakeName | CaseName }}(ctx, id)
+}
+
+ // InjectInterfaceImpl
+{{ end }}
+
+{{ define "service_interface" }}
+    New{{ .SnakeName | CaseName }}Service() {{ .SnakeName | CaseName }}Service
+    // InjectInterface
+{{end}}
+
+{{ define "service_interface_impl" }}
+func (srv *service) New{{ .SnakeName | CaseName }}Service() {{ .SnakeName | CaseName }}Service {
+    return new{{ .SnakeName | CaseName }}Service(srv.repo.New{{ .SnakeName | CaseName }}Repository())
+}
+
+// InjectInterfaceImpl
+{{end}}
+
+{{ define "service" }}
+package service
+
+import (
+    "{{ .InternalDir | ToSlash }}/repository"
+)
+
+type service struct {
+   repo repository.IRepository
+}
+
+// IService statement service's abilities.
+// the function's name use Camel-Case define should be like this:
+// the filename prefix and the action suffix.
+type IService interface {
+    // InjectInterface
+}
+
+func New(repository repository.IRepository) IService {
+	return &service{
+		repo: repository,
+	}
+}
+
+// InjectInterfaceImpl
+{{end}}

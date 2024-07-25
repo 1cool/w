@@ -2,34 +2,45 @@ package cmd
 
 import (
 	"bytes"
+	template2 "github.com/1cool/w/template"
+	"github.com/iancoleman/strcase"
+	"github.com/jinzhu/inflection"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
+type ActionType int
+
+const (
+	ActionCreate ActionType = iota + 1
+	ActionUpdate
+)
+
 type Generator struct {
-	WorkDir             string // exec命令执行工作目录
-	InternalDir         string
-	ServiceDir          string
-	RepositoryDir       string
-	HandlerDir          string
-	ModelDir            string
-	ConfigDir           string
-	DatabaseDir         string
-	Type                string
-	CamelName           string
-	LowerCamelName      string
-	SnakeName           string
-	FuncName            string
-	InjectInterface     string
-	InjectInterfaceImpl string
-	InjectHandlerFunc   string
-	TargetFuncFile      string
-	TargetInterfaceFile string
-	TemplateFunc        bytes.Buffer
-	TemplateInterface   bytes.Buffer
-	tmpl                *template.Template
+	Module         string // go.mod module
+	TargetFile     string // 写入目标文件
+	SnakeName      string
+	TmplName       string
+	UpdatePosition string       // 更新位置
+	Action         ActionType   // 动作；创建，还是更新
+	Content        bytes.Buffer // 内容
+	WorkDir        string       // exec命令执行工作目录
+	InternalDir    string
+	ConfigDir      string
+	DatabaseDir    string
+	HandlerDir     string
+	RequestDir     string
+	ResponseDir    string
+	ModelDir       string
+	RepositoryDir  string
+	ServiceDir     string
+	LogrotateDir   string
+	SystemdDir     string
+	DocDir         string
+	tmpl           *template.Template
 }
 
 var gen *Generator
@@ -40,8 +51,35 @@ func (gen *Generator) NewEntSchema() (string, error) {
 		"-mod=mod",
 		"entgo.io/ent/cmd/ent",
 		"new",
-		gen.CamelName,
+		strcase.ToCamel(gen.SnakeName),
 	}...)
+}
+func (gen *Generator) setDir() {
+	gen.InternalDir = filepath.Join(gen.WorkDir, "internal")
+	gen.ServiceDir = filepath.Join(gen.InternalDir, "service")
+	gen.RepositoryDir = filepath.Join(gen.InternalDir, "repository")
+	gen.HandlerDir = filepath.Join(gen.InternalDir, "httptransport")
+	gen.DatabaseDir = filepath.Join(gen.InternalDir, "database")
+	gen.ModelDir = filepath.Join(gen.InternalDir, "model")
+	gen.ConfigDir = filepath.Join(gen.InternalDir, "config")
+	gen.RequestDir = filepath.Join(gen.HandlerDir, "request")
+	gen.ResponseDir = filepath.Join(gen.HandlerDir, "response")
+	gen.LogrotateDir = filepath.Join(gen.WorkDir, "script/logrotate.d")
+	gen.SystemdDir = filepath.Join(gen.WorkDir, "script/systemd")
+	gen.DocDir = filepath.Join(gen.WorkDir, "doc")
+
+	os.MkdirAll(gen.InternalDir, os.ModePerm)
+	os.MkdirAll(gen.RepositoryDir, os.ModePerm)
+	os.MkdirAll(gen.ServiceDir, os.ModePerm)
+	os.MkdirAll(gen.HandlerDir, os.ModePerm)
+	os.MkdirAll(gen.RequestDir, os.ModePerm)
+	os.MkdirAll(gen.ResponseDir, os.ModePerm)
+	os.MkdirAll(gen.DatabaseDir, os.ModePerm)
+	os.MkdirAll(gen.ModelDir, os.ModePerm)
+	os.MkdirAll(gen.ConfigDir, os.ModePerm)
+	os.MkdirAll(gen.LogrotateDir, os.ModePerm)
+	os.MkdirAll(gen.SystemdDir, os.ModePerm)
+	os.MkdirAll(gen.DocDir, os.ModePerm)
 }
 
 func (gen *Generator) EntGenerate() (string, error) {
@@ -164,8 +202,8 @@ func (gen *Generator) InitGenerate(filename, fileDirname, templateName string) e
 //		} else {
 //			create.WriteString(`
 //import (
-//    "github.com/gin-gonic/gin"
-//    "net/http"
+//   "github.com/gin-gonic/gin"
+//   "net/http"
 //)
 //`)
 //		}
@@ -188,3 +226,50 @@ func (gen *Generator) InitGenerate(filename, fileDirname, templateName string) e
 //	newImplData := strings.Replace(string(implData), replaceOld, gen.TemplateFunc.String(), 1)
 //	return WriteToFile(gen.TargetFuncFile, []byte(newImplData))
 //}
+
+// write
+// all command finally use this function to write content to file.
+func (gen *Generator) write() error {
+	gen.Content = bytes.Buffer{}
+	err := gen.tmpl.ExecuteTemplate(&gen.Content, gen.TmplName, gen)
+	if err != nil {
+		return err
+	}
+	if gen.Action == ActionCreate {
+		return WriteToFile(gen.TargetFile, gen.Content.Bytes())
+	}
+	if gen.Action == ActionUpdate {
+		oldFileContent, err := os.ReadFile(gen.TargetFile)
+		if err != nil {
+			return err
+		}
+		newFileContent := strings.Replace(string(oldFileContent), gen.UpdatePosition, gen.Content.String(), 1)
+		return WriteToFile(gen.TargetFile, []byte(newFileContent))
+	}
+	return nil
+}
+
+func (gen *Generator) Generate(targetFile, tmpl string, actionType ActionType) error {
+	gen.TargetFile = targetFile
+	gen.TmplName = tmpl
+	gen.Action = actionType
+	return gen.write()
+}
+
+func NewGenerate(name string) *Generator {
+	return &Generator{
+		SnakeName: strcase.ToSnake(name),
+		tmpl: template.Must(
+			template.New("").
+				Funcs(template.FuncMap{
+					"ToSlash":     filepath.ToSlash,
+					"FirstLetter": firstLetter,
+					"CaseName":    strcase.ToCamel,
+					"LowerCamel":  strcase.ToLowerCamel,
+					"Snake":       strcase.ToSnake,
+					"Plural":      inflection.Plural,
+				}).
+				ParseFS(template2.TemplateDir, "tmpl/*.tmpl"),
+		),
+	}
+}
