@@ -5,7 +5,7 @@ go install github.com/1cool/w@latest
 ### Usage
 1、run init command
 ```shell
-w init your_project
+wo init your_project
 
 init successful
 please cd your project dirname,then edit your config file `config.yaml`
@@ -16,12 +16,15 @@ finally please run `go mod tidy && go run main.go`
 
 3、config config.yaml
 ```shell
+use mysql command 
+create database your_project;
+
 vim config.yaml
 
 database:
     driver: mysql # 数据库驱动；支持mysql
     mysql:
-        database: # 数据库名称
+        database: your_project # 数据库名称
         host: 127.0.0.1 # 数据库地址
         port: 3306 # 端口
         username: root # 账号
@@ -31,7 +34,7 @@ http:
 ```
 4、run new entity command for `crud business`. should generate model、ent schema、repository、service、handler、request、response.
 ```shell
-w new entity user
+wo new entity user
 
 new entity successful user
 ```
@@ -114,12 +117,12 @@ go run main.go
 
 ### More Usage
 ```shell
-w -h
+wo -h
  
-w is a cli tool for golang backend api with ent.
+wo is a cli tool for golang backend api with ent.
 
 Usage:
-  w [command]
+  wo [command]
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
@@ -128,15 +131,15 @@ Available Commands:
   new         new command for exit init project.
 
 Flags:
-  -h, --help   help for w
+  -h, --help   help for wo
 
-Use "w [command] --help" for more information about a command.
+Use "wo [command] --help" for more information about a command.
 
 ```
 
 ### About the Project
 
-`W` is a cli tool for golang backend api with ent.
+`WO` is a cli tool for golang backend api with ent.
 
 ### Dependencies
 - [entgo](https://github.com/ent/ent)

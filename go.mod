@@ -1,4 +1,4 @@
-module github.com/1cool/w
+module github.com/1cool/wo
 
 go 1.22.1
 
